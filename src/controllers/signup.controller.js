@@ -1,7 +1,7 @@
 import connection from '../database/database.js';
 import joi from 'joi';
 
-const customersSchema = joi.object({
+const userSignUpSchema = joi.object({
     name: joi.string().pattern(/^[A-zÀ-ú]/).required().empty(' '),
     email: joi.string().email().required().empty(''),
     password: joi.string().alphanum().required().empty(''),
@@ -25,7 +25,7 @@ async function checkUserAlreadyExists(email) {
 
 async function toSignUp(req, res) {
     const { name, email, password, checkPassword } = req.body;
-    const validation = customersSchema.validate(req.body, {abortEarly: false});
+    const validation = userSignUpSchema.validate(req.body, {abortEarly: false});
 
     if(validation.error) {
         const error = validation.error.details.map(detail => detail.message);
