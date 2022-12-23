@@ -71,7 +71,6 @@ async function getAndAccessShortUrl(req, res) {
             SELECT * FROM urls WHERE "shortUrl" = $1;
         `, [shortUrl]);
 
-        console.log(rows);
         if(rows[0].url === undefined) {
             return res.sendStatus(404);
         };
