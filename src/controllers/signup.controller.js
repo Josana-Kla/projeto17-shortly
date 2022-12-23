@@ -1,5 +1,6 @@
 import connection from '../database/database.js';
 import joi from 'joi';
+import bcrypt from 'bcrypt';
 
 const userSignUpSchema = joi.object({
     name: joi.string().pattern(/^[A-zÀ-ú]/).required().empty(' '),
@@ -33,18 +34,21 @@ async function toSignUp(req, res) {
         return res.status(422).send(error);
     };
 
-    if(password !== checkPassword) {
-        return res.sendStatus(400);
-    };
-
     if(await checkUserAlreadyExists(email)) {
         return res.sendStatus(409);
     };
 
+    if(password !== checkPassword) {
+        console.log("Preencha os campos corretamente!");
+        return res.sendStatus(422);
+    };
+
+    const hashPassword = bcrypt.hashSync(password, 10);
+
     try {
         await connection.query(`
             INSERT INTO users(name, email, password) VALUES($1, $2, $3)
-        `, [name, email, password]);
+        `, [name, email, hashPassword]);
 
         return res.sendStatus(201);
     } catch (error) {
