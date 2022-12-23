@@ -40,4 +40,27 @@ async function createNewUrl(req, res) {
     };
 };
 
-export { createNewUrl }; 
+async function getUrlById(req, res) {
+    const { id } = req.params;
+    
+    try {
+        const { rows } = await connection.query(`
+            SELECT * FROM urls WHERE id = $1;
+        `, [id]);
+
+        if(!rows[0].id) {
+            return res.sendStatus(404);
+        };
+
+        return res.status(200).send({
+            "id": rows[0].id,
+            "shortUrl": rows[0].shortUrl,
+            "url": rows[0].url
+        });
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(404);
+    }
+};
+
+export { createNewUrl, getUrlById }; 
