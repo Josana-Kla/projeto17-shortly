@@ -14,8 +14,8 @@ app.use(express.json());
 // ROUTES:
 app.use(signUpRouter);
 app.use(signInRouter);
-/* app.use(urlRouter);
-app.use(userRouter);
-app.use(rankingRouter); */ 
+app.use(urlRouter);
+/* app.use(userRouter);
+app.use(rankingRouter);   */
 
 app.listen(4000, () => console.log(`Executando na porta 4000...`));
