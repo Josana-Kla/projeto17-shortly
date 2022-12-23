@@ -63,4 +63,41 @@ async function getUrlById(req, res) {
     }
 };
 
-export { createNewUrl, getUrlById }; 
+async function getAndAccessShortUrl(req, res) {
+    const { shortUrl } = req.params;
+
+    try {
+        const { rows } = await connection.query(`
+            SELECT * FROM urls WHERE "shortUrl" = $1;
+        `, [shortUrl]);
+
+        console.log(rows);
+        if(rows[0].url === undefined) {
+            return res.sendStatus(404);
+        };
+
+        const urlId = rows[0].id;
+        const url = rows[0].url;
+
+        await connection.query(`
+            INSERT INTO visits("urlId") VALUES($1);
+        `, [urlId]);
+
+        const getVisits = await connection.query(`
+            SELECT * FROM visits WHERE "urlId" = $1;
+        `, [urlId]);
+
+        const incrementVisits = getVisits.rows[0].qtdVisits + 1;
+
+        await connection.query(`
+            UPDATE visits SET "qtdVisits" = $2 WHERE "urlId" = $1;
+        `, [urlId, incrementVisits]);
+
+        return  res.redirect(url);
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(404);
+    }
+};
+
+export { createNewUrl, getUrlById, getAndAccessShortUrl }; 
